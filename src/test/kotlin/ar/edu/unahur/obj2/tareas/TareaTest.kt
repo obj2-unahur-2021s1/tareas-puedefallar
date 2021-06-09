@@ -2,7 +2,6 @@ package ar.edu.unahur.obj2.tareas
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 
 class TareaTest : DescribeSpec({
@@ -11,18 +10,16 @@ class TareaTest : DescribeSpec({
   val responsable2 = Empleado(1200, Responsable)
   val responsable3 = Empleado(1000, Responsable)
   val responsable4 = Empleado(980, Responsable)
-
   val desarrollador = Empleado(500, EmpleadoComun)
-
   val analista = Empleado(700, EmpleadoComun)
   val diseniador = Empleado(500, EmpleadoComun)
-
+  //Tareas
   val tareaFacil = TareaSimple(200.0, mutableListOf(responsable1, desarrollador), 20000.0)
   val tareaSencilla = TareaSimple(150.0, mutableListOf(responsable2, diseniador), 10000.0)
   val tareaSimple = TareaSimple(50.0, mutableListOf(responsable3, analista), 5000.0)
 
   val tareaCompleja = TareaIntegracion(responsable4,300.0)
-
+  tareaCompleja.subtareas = mutableListOf<Tarea>(tareaFacil,tareaSencilla,tareaSimple)
 
   describe("Tareas Simple") {
 
@@ -45,7 +42,6 @@ class TareaTest : DescribeSpec({
 }
 
   describe ( "Una tarea de integracion"){
-    tareaCompleja.subtareas = mutableListOf<Tarea>(tareaFacil,tareaSencilla,tareaSimple)
 
     it ("nomina de empleados, horas necesarias para la tarea y costo"){
 
@@ -58,4 +54,19 @@ class TareaTest : DescribeSpec({
     }
   }
 
+  describe("Tarea de integracion anidada") {
+    val tareaComplejisima = TareaIntegracion(responsable2, 200.0)
+    tareaComplejisima.subtareas = mutableListOf<Tarea>(tareaFacil, tareaCompleja)
+
+    it("nomina de empleados, horas necesarias para la tarea y costo") {
+      tareaComplejisima.subtareas.shouldContainExactly(tareaFacil, tareaCompleja)
+
+      tareaComplejisima.nominaEmpleados().shouldContainExactly(responsable1, desarrollador,responsable1, desarrollador, responsable2, diseniador
+      ,responsable3,analista,responsable4, responsable2)
+
+      tareaComplejisima.horasNecesarias().shouldBe(662.5)
+      tareaComplejisima.costo().shouldBe(1254797.5)
+
+    }
+  }
 })
